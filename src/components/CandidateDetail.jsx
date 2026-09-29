@@ -85,33 +85,23 @@ export default function CandidateDetail({ candidate, onChange }) {
         </div>
       </div>
 
-      {['hard', 'operating'].map((category) => {
-        const dims = getDimensions(draft.role).filter((d) => d.category === category)
-        return (
-          <div key={category}>
-            <h3 className="text-sm font-semibold text-slate-600 mb-2">
-              {category === 'hard' ? 'Hard skills' : 'Operating / soft skills'}
-            </h3>
-            <div className="space-y-2">
-              {dims.map((d) => {
-                const s = draft.dimension_scores?.find((x) => x.key === d.key)
-                return (
-                  <div key={d.key} className="flex items-start gap-3 text-sm">
-                    <div className="w-8 shrink-0 font-semibold text-slate-700">{s?.score ?? 0}/3</div>
-                    <div>
-                      <div className="text-slate-700 font-medium">
-                        {d.label}
-                        {d.goodToHave && <span className="text-slate-400 font-normal text-xs"> (good-to-have)</span>}
-                      </div>
-                      {s?.quote && <div className="text-slate-400 italic text-xs mt-0.5">"{s.quote}"</div>}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )
-      })}
+      <div>
+        <h3 className="text-sm font-semibold text-slate-600 mb-2">Dimension scores</h3>
+        <div className="space-y-2">
+          {getDimensions(draft.role).map((d) => {
+            const s = draft.dimension_scores?.find((x) => x.key === d.key)
+            return (
+              <div key={d.key} className="flex items-start gap-3 text-sm">
+                <div className="w-8 shrink-0 font-semibold text-slate-700">{s?.score ?? 0}/3</div>
+                <div>
+                  <div className="text-slate-700 font-medium">{d.label}</div>
+                  {s?.quote && <div className="text-slate-400 italic text-xs mt-0.5">"{s.quote}"</div>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
 
       <div>
         <h3 className="text-sm font-semibold text-slate-600 mb-1">Probe in interview</h3>
