@@ -67,7 +67,12 @@ export default async function handler(req, res) {
   `
   const updated = firstRow(updatedRows)
 
-  if (errors.length && !results.candidate_sent) {
+  // Only a hard failure if nothing at all went out — a partial success
+  // (e.g. Arjun notified but the candidate's own mail bounced because
+  // Resend's test sender can't reach unverified recipients) still counts
+  // as a send, surfaced as a warning rather than an error.
+  const somethingSent = results.candidate_sent || results.arjun_sent
+  if (errors.length && !somethingSent) {
     return res.status(502).json({ error: errors.join(' | '), candidate: updated || candidate })
   }
 
