@@ -68,7 +68,7 @@ export default function CandidateDetail({ candidate, onChange }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-5">
+    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5 mt-2">
       <div className="flex items-start justify-between">
         <div>
           <h2 className="font-semibold text-lg text-slate-800">{draft.name}</h2>
