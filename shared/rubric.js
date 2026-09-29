@@ -1,68 +1,119 @@
-// Kargo PM / SPM scoring rubric — built from the traits shared by Kargo's
-// 8 past hires and the two job descriptions, not from the job description alone.
+// Kargo PM / SPM scoring rubric — PM and SPT each have their own 20-attribute
+// bar (10 hard skills + 10 operating/soft skills). SPM is not "the same
+// dimensions at a higher bar" — it's a distinct, more senior set of traits.
 
-export const DIMENSIONS = [
-  {
-    key: 'builds_without_playbook',
-    label: 'Builds without a playbook',
-    detail:
-      'Evidence of creating a process, tool, or framework that did not exist before, without being asked, rather than executing an existing one.',
-  },
-  {
-    key: 'owns_end_to_end',
-    label: 'Owns end-to-end, no approval layer',
-    detail:
-      'Evidence of holding full accountability for an outcome with no manager or committee approving each step.',
-  },
-  {
-    key: 'ships_fast_iterates_kills',
-    label: "Ships fast, iterates, kills what doesn't work",
-    detail:
-      "Evidence of moving from idea to live outcome quickly, and of stopping or reversing something that wasn't working, rather than letting it run.",
-  },
-  {
-    key: 'ops_logistics_fluency',
-    label: 'Ground-level operational / logistics fluency',
-    detail:
-      'Direct exposure to freight forwarding, customs, shipping, supply chain, or comparable operations-heavy environments — not just software built for them.',
-  },
-  {
-    key: 'institutionalizes_decisions',
-    label: 'Institutionalizes decisions',
-    detail:
-      'Evidence of writing down a process, post-mortem, SOP, or framework that outlived the task and was adopted by others.',
-  },
-  {
-    key: 'handles_pressure',
-    label: 'Handles pressure without escalating',
-    detail:
-      'Evidence of resolving a time-critical or high-stakes situation independently, without pushing it up to a manager.',
-  },
-  {
-    key: 'measurable_impact',
-    label: 'Measurable impact',
-    detail:
-      'States outcomes in specific numbers (%, ₹, time, volume) rather than descriptions of activity.',
-  },
+export const PM_DIMENSIONS = [
+  // Hard skills
+  { key: 'product_discovery', label: 'Product discovery', category: 'hard',
+    detail: 'Identifies customer problems through interviews, data, observation, and existing behaviour rather than jumping straight to solutions.' },
+  { key: 'problem_framing', label: 'Problem framing', category: 'hard',
+    detail: 'Converts ambiguous business/customer problems into a clear problem statement, hypotheses, and measurable outcomes.' },
+  { key: 'prioritization', label: 'Prioritization', category: 'hard',
+    detail: 'Makes explicit trade-offs across customer impact, business value, effort, urgency, and dependencies.' },
+  { key: 'data_fluency', label: 'Data fluency', category: 'hard',
+    detail: 'Comfortable using SQL, analytics tools, spreadsheets, dashboards, funnels, cohorts, and experimentation data to make decisions.' },
+  { key: 'experimentation_mindset', label: 'Experimentation mindset', category: 'hard',
+    detail: 'Defines hypotheses, success metrics, test design, and learns from both positive and negative results.' },
+  { key: 'technical_fluency', label: 'Technical fluency', category: 'hard',
+    detail: 'Understands APIs, databases, system constraints, integrations, data flows, and engineering trade-offs well enough to work effectively with engineers.' },
+  { key: 'product_execution', label: 'Product execution', category: 'hard',
+    detail: 'Can take a problem from requirements → prioritization → build → launch → measurement → iteration.' },
+  { key: 'product_analytics', label: 'Product analytics', category: 'hard',
+    detail: 'Understands activation, retention, conversion, engagement, unit economics, and other relevant product metrics.' },
+  { key: 'business_understanding', label: 'Business understanding', category: 'hard',
+    detail: 'Connects product decisions to revenue, cost, margins, operational efficiency, or strategic goals.' },
+  { key: 'prior_product_experience', label: 'Prior product experience', category: 'hard', goodToHave: true,
+    detail: 'Good-to-have: has previously owned a product, feature, platform, workflow, or technical product area.' },
+  // Operating / soft skills
+  { key: 'builds_without_playbook', label: 'Builds without a playbook', category: 'operating',
+    detail: "Created a process, tool, or framework that didn't exist before, without being asked, rather than executing an existing one." },
+  { key: 'owns_end_to_end', label: 'Owns end-to-end, no approval layer', category: 'operating',
+    detail: 'Full accountability for an outcome with no manager/committee approving each step.' },
+  { key: 'ships_fast_iterates_kills', label: "Ships fast, iterates, kills what doesn't work", category: 'operating',
+    detail: "Moves from idea to live outcome quickly and stops/reverses things that aren't working." },
+  { key: 'institutionalizes_decisions', label: 'Institutionalizes decisions', category: 'operating',
+    detail: 'Creates SOPs, documentation, frameworks, or post-mortems that others subsequently adopt.' },
+  { key: 'handles_pressure', label: 'Handles pressure without escalating', category: 'operating',
+    detail: 'Independently resolves time-critical or high-stakes situations.' },
+  { key: 'influences_without_authority', label: 'Influences without authority', category: 'operating',
+    detail: 'Gets engineering, design, operations, sales, or business teams aligned without relying on hierarchy.' },
+  { key: 'communicates_with_precision', label: 'Communicates with precision', category: 'operating',
+    detail: 'Can simplify complex problems and clearly communicate the "what, why, trade-off, and next step."' },
+  { key: 'comfortable_with_ambiguity', label: 'Comfortable with ambiguity', category: 'operating',
+    detail: "Can make progress when requirements, data, ownership, or the path forward aren't clearly defined." },
+  { key: 'measurable_impact', label: 'Measurable impact', category: 'operating',
+    detail: 'Describes work through specific outcomes: %, ₹, revenue, users, time saved, conversion, cost reduction, volume, etc.' },
+  { key: 'customer_obsession', label: 'Customer obsession', category: 'operating',
+    detail: 'Demonstrates direct engagement with customers/users rather than relying entirely on second-hand requirements.' },
 ]
 
-export const MAX_SCORE = DIMENSIONS.length * 3 // 21
+export const SPM_DIMENSIONS = [
+  // Hard skills
+  { key: 'zero_to_one_ownership', label: '0→1 product ownership', category: 'hard',
+    detail: 'Has taken a product, product line, workflow, or major capability from an ambiguous problem to a live solution.' },
+  { key: 'product_strategy', label: 'Product strategy', category: 'hard',
+    detail: 'Translates company/business objectives into product strategy, priorities, roadmap, and measurable outcomes.' },
+  { key: 'portfolio_prioritization', label: 'Portfolio-level prioritization', category: 'hard',
+    detail: 'Can make trade-offs across multiple products, teams, customers, and competing business priorities.' },
+  { key: 'product_judgment', label: 'Strong product judgment', category: 'hard',
+    detail: 'Knows when to build, buy, automate, simplify, defer, or kill a product/feature.' },
+  { key: 'advanced_product_analytics', label: 'Advanced product analytics', category: 'hard',
+    detail: 'Independently investigates funnels, cohorts, retention, segmentation, experimentation, and business metrics to identify opportunities.' },
+  { key: 'technical_depth', label: 'Technical depth', category: 'hard',
+    detail: 'Can engage meaningfully with senior engineers/architects on architecture, APIs, data models, scalability, reliability, integrations, and technical trade-offs.' },
+  { key: 'experimentation_causal_thinking', label: 'Experimentation & causal thinking', category: 'hard',
+    detail: 'Designs experiments that distinguish correlation from causation and understands statistical/measurement limitations.' },
+  { key: 'business_commercial_acumen', label: 'Business & commercial acumen', category: 'hard',
+    detail: 'Understands P&L, pricing, monetization, unit economics, GTM, customer acquisition, and operational implications of product decisions.' },
+  { key: 'platform_systems_thinking', label: 'Platform / systems thinking', category: 'hard',
+    detail: 'Understands how a product interacts with other products, internal systems, operations, and external stakeholders.' },
+  { key: 'prior_pm_tech_experience', label: 'Prior PM / tech experience', category: 'hard', goodToHave: true,
+    detail: 'Good-to-have: prior experience in product management, software/technology, engineering, data, or another highly technical product environment.' },
+  // Senior-level operating attributes
+  { key: 'builds_the_playbook', label: 'Builds the playbook', category: 'operating',
+    detail: "Doesn't just operate within an existing process — creates the operating model that the team subsequently uses." },
+  { key: 'independent_ownership', label: 'Independent ownership', category: 'operating',
+    detail: 'Can take a business problem, define the approach, align stakeholders, execute, and own the result with minimal supervision.' },
+  { key: 'creates_leverage', label: 'Creates leverage', category: 'operating',
+    detail: 'Improves systems, processes, tools, or team capabilities so that the organisation performs better even after they step away.' },
+  { key: 'leads_through_influence', label: 'Leads through influence', category: 'operating',
+    detail: 'Aligns senior stakeholders and cross-functional teams without relying on formal authority.' },
+  { key: 'decides_with_incomplete_info', label: 'Makes decisions with incomplete information', category: 'operating',
+    detail: 'Knows when there is enough information to act rather than endlessly seeking certainty.' },
+  { key: 'commercial_judgment', label: 'Strong commercial judgment', category: 'operating',
+    detail: 'Understands whether a product decision actually creates economic value, not just user engagement.' },
+  { key: 'handles_high_stakes_ambiguity', label: 'Handles high-stakes ambiguity', category: 'operating',
+    detail: 'Remains effective when there are conflicting stakeholders, unclear ownership, tight deadlines, or material business consequences.' },
+  { key: 'institutionalizes_learning', label: 'Institutionalizes learning', category: 'operating',
+    detail: 'Converts experiments, failures, incidents, and customer insights into repeatable organisational knowledge.' },
+  { key: 'raises_teams_bar', label: "Raises the team's bar", category: 'operating',
+    detail: 'Mentors PMs/peers and improves the quality of product thinking around them.' },
+  { key: 'measurable_business_impact', label: 'Measurable business impact', category: 'operating',
+    detail: 'Can demonstrate meaningful outcomes through revenue, margin, adoption, retention, cost, productivity, operational efficiency, or other hard metrics.' },
+]
 
-// Same seven dimensions for both roles — SPM is held to a higher bar because
-// the role demands more independence and larger-scope ownership, not because
-// the traits differ. Adjust these if Kargo's hiring bar shifts.
+export function getDimensions(role) {
+  return role === 'SPM' ? SPM_DIMENSIONS : PM_DIMENSIONS
+}
+
+export function getMaxScore(role) {
+  return getDimensions(role).length * 3
+}
+
+// Same ~57% / ~76% bar as the original 7-dimension rubric, recalculated for
+// the 20-attribute (60-point) scale. Adjust these if Kargo's hiring bar shifts.
 export const ROLE_CONFIG = {
   PM: {
     label: 'Product Manager',
-    inviteThreshold: 12, // 57% of 21
+    inviteThreshold: 34, // 57% of 60
     description:
       'Early-to-mid ownership: expected to execute independently within a defined scope and show early signs of these traits.',
   },
   SPM: {
     label: 'Senior Product Manager',
-    inviteThreshold: 16, // 76% of 21
+    inviteThreshold: 46, // 76% of 60
     description:
-      'Senior ownership: expected to demonstrate these traits repeatedly, at larger scope, with institutional impact.',
+      'Senior ownership: expected to independently define what should be built, mobilize people around it, and own the business outcome.',
   },
 }
 
@@ -90,42 +141,48 @@ Return ONLY valid JSON (no markdown fences), in this exact shape:
 
 export function buildScoringPrompt(role) {
   const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.PM
-  const dimensionList = DIMENSIONS.map(
-    (d, i) => `${i + 1}. ${d.label.toUpperCase()}\n   ${d.detail}`
-  ).join('\n\n')
+  const dimensions = getDimensions(role)
+  const maxScore = getMaxScore(role)
+  const hardSkills = dimensions.filter((d) => d.category === 'hard')
+  const operating = dimensions.filter((d) => d.category === 'operating')
 
-  return `You are scoring a candidate CV for Kargo's ${cfg.label} role. Score against the following rubric, which was built from the traits shared by Kargo's 8 past hires and the two job descriptions — not from the job description alone.
+  const listSection = (title, items) =>
+    `${title}\n` +
+    items.map((d, i) => `${i + 1}. ${d.label.toUpperCase()}${d.goodToHave ? ' (good-to-have)' : ''}\n   ${d.detail}`).join('\n\n')
+
+  const jsonExample = dimensions
+    .map((d) => `    { "key": "${d.key}", "score": 0-3, "quote": "exact line from CV or empty string" }`)
+    .join(',\n')
+
+  return `You are scoring a candidate CV for Kargo's ${cfg.label} role against Kargo's Product Manager attribute rubric. This is the full bar for the role — score every attribute, including the one marked "good-to-have" (still score it 0-3; it is simply not a blocking requirement on its own).
 
 This candidate is being evaluated for the ${cfg.label} role specifically: ${cfg.description}
-Hold the evidence to that bar when assigning scores — the same seven dimensions apply to both PM and SPM, but ${cfg.label === 'Senior Product Manager' ? 'expect stronger, more independent, larger-scope evidence before awarding a 2 or 3' : 'early or smaller-scope evidence can still earn a 2 or 3'}.
 
-For each dimension, score 0-3 (0 = no evidence, 3 = strong direct evidence) and quote the specific line from the CV that supports the score. If there is no evidence, use an empty string for the quote.
+For each of the ${dimensions.length} attributes below, score 0-3 (0 = no evidence, 1 = weak/indirect evidence, 2 = clear evidence, 3 = strong direct evidence) and quote the specific line from the CV that supports the score. If there is no evidence, use an empty string for the quote.
 
-${dimensionList}
+${listSection('HARD SKILLS', hardSkills)}
+
+${listSection('OPERATING / SOFT SKILLS', operating)}
 
 Output ONLY valid JSON (no markdown fences), in this exact shape:
 {
   "dimension_scores": [
-    { "key": "builds_without_playbook", "score": 0-3, "quote": "exact line from CV or empty string" },
-    { "key": "owns_end_to_end", "score": 0-3, "quote": "..." },
-    { "key": "ships_fast_iterates_kills", "score": 0-3, "quote": "..." },
-    { "key": "ops_logistics_fluency", "score": 0-3, "quote": "..." },
-    { "key": "institutionalizes_decisions", "score": 0-3, "quote": "..." },
-    { "key": "handles_pressure", "score": 0-3, "quote": "..." },
-    { "key": "measurable_impact", "score": 0-3, "quote": "..." }
+${jsonExample}
   ],
-  "probe_question": "One line: what to probe in the interview, based on the weakest or least-evidenced dimension."
+  "probe_question": "One line: what to probe in the interview, based on the weakest or least-evidenced attribute(s)."
 }
 
-Do not rank against the job description directly. Score only against the seven dimensions above.`
+Total will be summed out of ${maxScore}. Do not rank against a job description directly — score only against the attributes above.`
 }
 
 export function buildBriefAndEmailPrompt({ role, extracted, dimensionScores, totalScore, probeQuestion, suggested }) {
   const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.PM
+  const dimensions = getDimensions(role)
+  const maxScore = getMaxScore(role)
   const scoreLines = dimensionScores
     .map((s) => {
-      const dim = DIMENSIONS.find((d) => d.key === s.key)
-      return `- ${dim?.label || s.key}: ${s.score}/3${s.quote ? ` — "${s.quote}"` : ' — no evidence'}`
+      const dim = dimensions.find((d) => d.key === s.key)
+      return `- ${dim?.label || s.key}${dim?.goodToHave ? ' (good-to-have)' : ''}: ${s.score}/3${s.quote ? ` — "${s.quote}"` : ' — no evidence'}`
     })
     .join('\n')
 
@@ -133,17 +190,17 @@ export function buildBriefAndEmailPrompt({ role, extracted, dimensionScores, tot
 
 Candidate: ${extracted?.name || 'Unknown'}
 Current role: ${extracted?.current_title || 'Unknown'} at ${extracted?.current_company || 'Unknown'}
-Total score: ${totalScore}/21 (invite threshold for ${cfg.label}: ${cfg.inviteThreshold}/21)
-Weakest-dimension probe: ${probeQuestion}
+Total score: ${totalScore}/${maxScore} (invite threshold for ${cfg.label}: ${cfg.inviteThreshold}/${maxScore})
+Weakest-attribute probe: ${probeQuestion}
 
-Dimension scores:
+Attribute scores:
 ${scoreLines}
 
 Produce four things:
 
-1. INTERVIEW BRIEF (150-250 words): a crisp brief for whoever interviews this candidate — strongest evidenced traits, what to probe on (based on the weakest dimensions), and anything notable from their background.
+1. INTERVIEW BRIEF (150-250 words): a crisp brief for whoever interviews this candidate — strongest evidenced attributes, what to probe on (based on the weakest attributes), and anything notable from their background.
 
-2. SELECTION RATIONALE (2-4 sentences, written to Arjun): why this specific candidate scored the way they did, in plain terms — reference the standout dimension(s) with the concrete evidence. This will be emailed to Arjun so he can see the reasoning at a glance.
+2. SELECTION RATIONALE (2-4 sentences, written to Arjun): why this specific candidate scored the way they did, in plain terms — reference the standout attribute(s) with the concrete evidence. This will be emailed to Arjun so he can see the reasoning at a glance.
 
 3. INVITE EMAIL: a warm, specific, personalized email inviting ${extracted?.name || 'the candidate'} to interview for the ${cfg.label} role at Kargo. Reference one concrete thing from their background. Keep it under 150 words. Professional but human tone, signed "Kargo Hiring Team".
 

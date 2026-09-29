@@ -2,8 +2,8 @@ import { getSql, firstRow } from '../_lib/db.js'
 import { callGeminiWithFile } from '../_lib/gemini.js'
 import { extractDocxText } from '../_lib/extractText.js'
 import {
-  DIMENSIONS,
-  MAX_SCORE,
+  getDimensions,
+  getMaxScore,
   ROLE_CONFIG,
   suggestedDecision,
   buildExtractionPrompt,
@@ -41,8 +41,11 @@ export default async function handler(req, res) {
 
     const extracted = await callGeminiWithFile(apiKey, buildExtractionPrompt(), file)
 
+    const dimensions = getDimensions(role)
+    const maxScore = getMaxScore(role)
+
     const scoring = await callGeminiWithFile(apiKey, buildScoringPrompt(role), file)
-    const dimensionScores = DIMENSIONS.map((d) => {
+    const dimensionScores = dimensions.map((d) => {
       const match = scoring.dimension_scores?.find((s) => s.key === d.key)
       return { key: d.key, score: Number(match?.score) || 0, quote: match?.quote || '' }
     })
@@ -73,7 +76,7 @@ export default async function handler(req, res) {
       ) values (
         ${extracted.name || filename}, ${extracted.email || null}, ${extracted.phone || null},
         ${role}, ${filename}, ${mimeType}, ${buffer},
-        ${JSON.stringify(extracted)}, ${JSON.stringify(dimensionScores)}, ${totalScore}, ${MAX_SCORE},
+        ${JSON.stringify(extracted)}, ${JSON.stringify(dimensionScores)}, ${totalScore}, ${maxScore},
         ${scoring.probe_question || ''},
         ${brief.interview_brief || ''}, ${brief.selection_rationale || ''},
         ${brief.invite_email_subject || ''}, ${brief.invite_email_body || ''},
