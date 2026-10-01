@@ -7,7 +7,7 @@ import CandidateList from './components/CandidateList.jsx'
 import CandidateDrawer from './components/CandidateDrawer.jsx'
 import UploadModal from './components/UploadModal.jsx'
 import RubricModal from './components/RubricModal.jsx'
-import { listCandidates } from './lib/api.js'
+import { listCandidates, setDecision, sendCandidate } from './lib/api.js'
 
 export default function App() {
   const [candidates, setCandidates] = useState([])
@@ -17,6 +17,9 @@ export default function App() {
   const [query, setQuery] = useState('')
   const [uploadOpen, setUploadOpen] = useState(false)
   const [rubricOpen, setRubricOpen] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(() => new Set())
+  const [bulkBusy, setBulkBusy] = useState(false)
+  const [bulkResult, setBulkResult] = useState(null)
 
   async function refresh() {
     try {
@@ -38,6 +41,64 @@ export default function App() {
 
   function handleCandidateChange(updated) {
     setCandidates((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
+  }
+
+  function toggleSelect(id) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll(checked, visibleIds) {
+    setSelectedIds(checked ? new Set(visibleIds) : new Set())
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set())
+  }
+
+  async function bulkSetDecision(decision) {
+    setBulkBusy(true)
+    setBulkResult(null)
+    const ids = Array.from(selectedIds)
+    const results = await Promise.allSettled(ids.map((id) => setDecision(id, decision)))
+    let ok = 0
+    results.forEach((r) => {
+      if (r.status === 'fulfilled') {
+        handleCandidateChange(r.value.candidate)
+        ok++
+      }
+    })
+    setBulkResult(`Marked ${ok}/${ids.length} candidate${ids.length === 1 ? '' : 's'} as ${decision}.`)
+    setBulkBusy(false)
+  }
+
+  async function bulkSend() {
+    setBulkBusy(true)
+    setBulkResult(null)
+    const ids = Array.from(selectedIds)
+    const results = await Promise.allSettled(ids.map((id) => sendCandidate(id)))
+    let sent = 0
+    let warned = 0
+    let failed = 0
+    results.forEach((r) => {
+      if (r.status === 'fulfilled') {
+        handleCandidateChange(r.value.candidate)
+        if (r.value.warnings?.length) warned++
+        else sent++
+      } else {
+        failed++
+      }
+    })
+    const parts = []
+    if (sent) parts.push(`${sent} sent cleanly`)
+    if (warned) parts.push(`${warned} sent with warnings`)
+    if (failed) parts.push(`${failed} failed`)
+    setBulkResult(`Send complete: ${parts.join(', ')}.`)
+    setBulkBusy(false)
   }
 
   const filtered = useMemo(() => {
@@ -78,7 +139,18 @@ export default function App() {
 
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-6 items-start">
             <ScoreDonut candidates={candidates} />
-            <CandidateList candidates={filtered} onSelect={setSelectedId} />
+            <CandidateList
+              candidates={filtered}
+              onSelect={setSelectedId}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelect}
+              onToggleSelectAll={(checked) => toggleSelectAll(checked, filtered.map((c) => c.id))}
+              onBulkDecision={bulkSetDecision}
+              onBulkSend={bulkSend}
+              onClearSelection={clearSelection}
+              bulkBusy={bulkBusy}
+              bulkResult={bulkResult}
+            />
           </div>
         </main>
       </div>
