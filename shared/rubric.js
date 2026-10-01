@@ -77,6 +77,21 @@ export function getMaxScore() {
   return MAX_SCORE
 }
 
+// Safety net: the AI is instructed to name the role in the subject and
+// opening line, but it's free text — guarantee it deterministically so a
+// candidate is never left unsure whether this is about the PM or SPM role.
+export function ensureRoleMentioned(subject, body, roleLabel) {
+  let s = (subject || '').trim()
+  let b = (body || '').trim()
+  if (!s.toLowerCase().includes(roleLabel.toLowerCase())) {
+    s = s ? `${roleLabel} — ${s}` : `Your application for the ${roleLabel} role at Kargo`
+  }
+  if (!b.toLowerCase().includes(roleLabel.toLowerCase())) {
+    b = `Re: the ${roleLabel} role at Kargo.\n\n${b}`
+  }
+  return { subject: s, body: b }
+}
+
 export function suggestedDecision(role, totalScore) {
   const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.PM
   return totalScore >= cfg.inviteThreshold ? 'invite' : 'reject'
@@ -156,9 +171,9 @@ Produce four things:
 
 2. SELECTION RATIONALE (2-4 sentences, written to Arjun): why this specific candidate scored the way they did, in plain terms — reference the standout dimension(s) with the concrete evidence. This will be emailed to Arjun so he can see the reasoning at a glance.
 
-3. INVITE EMAIL: a warm, specific, personalized email inviting ${extracted?.name || 'the candidate'} to interview for the ${cfg.label} role at Kargo. Reference one concrete thing from their background. Keep it under 150 words. Professional but human tone, signed "Kargo Hiring Team".
+3. INVITE EMAIL: a warm, specific, personalized email inviting ${extracted?.name || 'the candidate'} to interview for the ${cfg.label} role at Kargo. The subject line MUST contain the exact words "${cfg.label}", and the first sentence of the body MUST also name the role as "${cfg.label}" — the candidate should never be left guessing which role this is about. Reference one concrete thing from their background. Keep it under 150 words. Professional but human tone, signed "Kargo Hiring Team".
 
-4. REJECT EMAIL: a respectful, warm rejection email for the ${cfg.label} role, under 120 words, that does not disclose scores or rubric details, leaves the door open for future roles, and thanks them for their time. Signed "Kargo Hiring Team".
+4. REJECT EMAIL: a respectful, warm rejection email for the ${cfg.label} role, under 120 words. The subject line MUST contain the exact words "${cfg.label}", and the first sentence MUST also name the role as "${cfg.label}". Do not disclose scores or rubric details; leave the door open for future roles and thank them for their time. Signed "Kargo Hiring Team".
 
 Output ONLY valid JSON (no markdown fences), in this exact shape:
 {

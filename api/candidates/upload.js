@@ -6,6 +6,7 @@ import {
   getMaxScore,
   ROLE_CONFIG,
   suggestedDecision,
+  ensureRoleMentioned,
   buildExtractionPrompt,
   buildScoringPrompt,
   buildBriefAndEmailPrompt,
@@ -65,6 +66,10 @@ export default async function handler(req, res) {
       null
     )
 
+    const roleLabel = ROLE_CONFIG[role].label
+    const invite = ensureRoleMentioned(brief.invite_email_subject, brief.invite_email_body, roleLabel)
+    const reject = ensureRoleMentioned(brief.reject_email_subject, brief.reject_email_body, roleLabel)
+
     const sql = getSql()
     const rows = await sql`
       insert into candidates (
@@ -79,8 +84,8 @@ export default async function handler(req, res) {
         ${JSON.stringify(extracted)}, ${JSON.stringify(dimensionScores)}, ${totalScore}, ${maxScore},
         ${scoring.probe_question || ''},
         ${brief.interview_brief || ''}, ${brief.selection_rationale || ''},
-        ${brief.invite_email_subject || ''}, ${brief.invite_email_body || ''},
-        ${brief.reject_email_subject || ''}, ${brief.reject_email_body || ''},
+        ${invite.subject}, ${invite.body},
+        ${reject.subject}, ${reject.body},
         ${suggested}, ${suggested}, 'ready'
       )
       returning id, name, email, phone, role, cv_filename, extracted, dimension_scores,
