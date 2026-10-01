@@ -109,7 +109,12 @@ export default function CandidateList({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-slate-800 truncate">{c.name || c.cv_filename}</div>
-                    <div className="text-xs text-slate-400 truncate">{c.role} · {c.email || 'no email'}</div>
+                    <div className="text-xs text-slate-400 truncate">
+                      {c.role}
+                      {c.role_source === 'auto' && <span className="text-slate-300"> (auto)</span>}
+                      {' · '}
+                      {c.email || 'no email'}
+                    </div>
                   </div>
                   <div className="text-sm font-semibold text-slate-700 shrink-0">
                     {c.total_score}

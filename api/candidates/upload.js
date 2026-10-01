@@ -10,6 +10,7 @@ import {
   buildExtractionPrompt,
   buildScoringPrompt,
   buildBriefAndEmailPrompt,
+  buildRoleClassificationPrompt,
 } from '../../shared/rubric.js'
 
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -17,12 +18,15 @@ const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingm
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { filename, mimeType, base64, role } = req.body || {}
+  const { filename, mimeType, base64, role: requestedRole } = req.body || {}
   if (!filename || !mimeType || !base64) {
     return res.status(400).json({ error: 'filename, mimeType and base64 are required' })
   }
-  if (!ROLE_CONFIG[role]) {
-    return res.status(400).json({ error: 'role must be PM or SPM' })
+  // 'auto' (or no role at all) means: let the CV decide. An explicit PM/SPM
+  // is a manual override of whatever the classifier would have picked.
+  const isManualRole = requestedRole === 'PM' || requestedRole === 'SPM'
+  if (requestedRole && requestedRole !== 'auto' && !isManualRole) {
+    return res.status(400).json({ error: 'role must be PM, SPM, or auto' })
   }
   if (mimeType !== 'application/pdf' && mimeType !== DOCX_MIME) {
     return res.status(400).json({ error: 'Only PDF and DOCX CVs are supported' })
@@ -39,6 +43,11 @@ export default async function handler(req, res) {
       mimeType === 'application/pdf'
         ? { base64, mimeType }
         : { text: await extractDocxText(buffer) }
+
+    const classification = await callGeminiWithFile(apiKey, buildRoleClassificationPrompt(), file)
+    const recommendedRole = classification.recommended_role === 'SPM' ? 'SPM' : 'PM'
+    const role = isManualRole ? requestedRole : recommendedRole
+    const roleSource = isManualRole ? 'manual' : 'auto'
 
     const extracted = await callGeminiWithFile(apiKey, buildExtractionPrompt(), file)
 
@@ -73,14 +82,16 @@ export default async function handler(req, res) {
     const sql = getSql()
     const rows = await sql`
       insert into candidates (
-        name, email, phone, role, cv_filename, cv_mime_type, cv_data,
+        name, email, phone, role, role_source, recommended_role, role_rationale,
+        cv_filename, cv_mime_type, cv_data,
         extracted, dimension_scores, total_score, max_score, probe_question,
         interview_brief, selection_rationale,
         invite_email_subject, invite_email_body, reject_email_subject, reject_email_body,
         suggested_decision, decision, status
       ) values (
         ${extracted.name || filename}, ${extracted.email || null}, ${extracted.phone || null},
-        ${role}, ${filename}, ${mimeType}, ${buffer},
+        ${role}, ${roleSource}, ${recommendedRole}, ${classification.rationale || ''},
+        ${filename}, ${mimeType}, ${buffer},
         ${JSON.stringify(extracted)}, ${JSON.stringify(dimensionScores)}, ${totalScore}, ${maxScore},
         ${scoring.probe_question || ''},
         ${brief.interview_brief || ''}, ${brief.selection_rationale || ''},
@@ -88,7 +99,8 @@ export default async function handler(req, res) {
         ${reject.subject}, ${reject.body},
         ${suggested}, ${suggested}, 'ready'
       )
-      returning id, name, email, phone, role, cv_filename, extracted, dimension_scores,
+      returning id, name, email, phone, role, role_source, recommended_role, role_rationale,
+                cv_filename, extracted, dimension_scores,
                 total_score, max_score, probe_question, interview_brief, selection_rationale,
                 invite_email_subject, invite_email_body, reject_email_subject, reject_email_body,
                 suggested_decision, decision, status, sent_at, sent_to_candidate, sent_to_arjun, created_at

@@ -2,8 +2,8 @@ import { useRef, useState } from 'react'
 import { UploadCloud, Loader2, X } from 'lucide-react'
 import { uploadCandidate } from '../lib/api.js'
 
-export default function UploadModal({ defaultRole, onClose, onUploaded }) {
-  const [role, setRole] = useState(defaultRole === 'SPM' ? 'SPM' : 'PM')
+export default function UploadModal({ onClose, onUploaded }) {
+  const [role, setRole] = useState('auto')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const inputRef = useRef(null)
@@ -38,7 +38,7 @@ export default function UploadModal({ defaultRole, onClose, onUploaded }) {
           </button>
         </div>
 
-        <div className="flex items-center gap-2 text-sm mb-4">
+        <div className="flex items-center gap-2 text-sm mb-1">
           <label className="text-slate-500">Role</label>
           <select
             value={role}
@@ -46,10 +46,16 @@ export default function UploadModal({ defaultRole, onClose, onUploaded }) {
             className="border border-slate-300 rounded-lg px-2 py-1.5"
             disabled={busy}
           >
-            <option value="PM">Product Manager</option>
-            <option value="SPM">Senior Product Manager</option>
+            <option value="auto">Auto-detect from CV (recommended)</option>
+            <option value="PM">Force: Product Manager</option>
+            <option value="SPM">Force: Senior Product Manager</option>
           </select>
         </div>
+        <p className="text-xs text-slate-400 mb-4">
+          {role === 'auto'
+            ? "The CV's title, experience, and scope of ownership decide PM vs SPM — you'll see why on the candidate's card."
+            : 'Overrides whatever the CV would otherwise classify as.'}
+        </p>
 
         <label
           className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-2xl py-10 cursor-pointer transition ${

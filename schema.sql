@@ -8,6 +8,9 @@ create table if not exists candidates (
   email text,
   phone text,
   role text not null check (role in ('PM', 'SPM')),
+  role_source text default 'manual' check (role_source in ('auto', 'manual')),
+  recommended_role text check (recommended_role in ('PM', 'SPM')),
+  role_rationale text,
 
   cv_filename text,
   cv_mime_type text,

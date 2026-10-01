@@ -38,7 +38,7 @@ export default async function handler(req, res) {
       sent_at = ${results.candidate_sent ? new Date().toISOString() : candidate.sent_at},
       sent_to_candidate = ${results.candidate_sent || candidate.sent_to_candidate || false}
     where id = ${id}
-    returning id, name, email, phone, role, cv_filename, extracted, dimension_scores,
+    returning id, name, email, phone, role, role_source, recommended_role, role_rationale, cv_filename, extracted, dimension_scores,
               total_score, max_score, probe_question, interview_brief, selection_rationale,
               invite_email_subject, invite_email_body, reject_email_subject, reject_email_body,
               suggested_decision, decision, status, sent_at, sent_to_candidate, sent_to_arjun, created_at

@@ -92,6 +92,52 @@ export function ensureRoleMentioned(subject, body, roleLabel) {
   return { subject: s, body: b }
 }
 
+// Signals used to decide whether a CV should be evaluated against the PM or
+// SPM bar, in priority order. Kept as plain data so the criteria are visible
+// and editable in one place, not buried inside the prompt string.
+export const ROLE_CLASSIFICATION_SIGNALS = [
+  {
+    signal: 'Current/most recent title',
+    pm: 'Plain "Product Manager", "Associate PM", or "APM"',
+    spm: 'Explicit "Senior", "Lead", "Principal", "Group PM", or "Head of Product"',
+  },
+  {
+    signal: 'Years of hands-on PM experience',
+    pm: 'Under ~5 years in a product management role specifically (not adjacent functions like ops or engineering)',
+    spm: 'Roughly 5+ years of hands-on product management experience',
+  },
+  {
+    signal: 'Scope of ownership',
+    pm: 'Owns a single feature/module within a larger product, typically with some oversight',
+    spm: 'Owns an entire product line, sets strategy across multiple products, or manages/mentors other PMs',
+  },
+  {
+    signal: 'Scale of impact described',
+    pm: 'Impact framed around one module, feature, or initiative',
+    spm: 'Impact framed at company/product-line scale, or spanning multiple products/teams',
+  },
+]
+
+export function buildRoleClassificationPrompt() {
+  const signalList = ROLE_CLASSIFICATION_SIGNALS.map(
+    (s, i) => `${i + 1}. ${s.signal}\n   PM signal: ${s.pm}\n   SPM signal: ${s.spm}`
+  ).join('\n\n')
+
+  return `You are deciding whether this candidate's CV should be evaluated against Kargo's Product Manager (PM) bar or Senior Product Manager (SPM) bar — before any scoring happens.
+
+Weigh these signals, in the order given (earlier signals matter more):
+
+${signalList}
+
+Default to PM when the evidence is ambiguous or mixed. Only choose SPM when the evidence clearly and predominantly supports it — this is a real gate, not a coin flip.
+
+Output ONLY valid JSON (no markdown fences), in this exact shape:
+{
+  "recommended_role": "PM" or "SPM",
+  "rationale": "One or two sentences citing the specific signal(s) from the CV that drove this call."
+}`
+}
+
 export function suggestedDecision(role, totalScore) {
   const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.PM
   return totalScore >= cfg.inviteThreshold ? 'invite' : 'reject'

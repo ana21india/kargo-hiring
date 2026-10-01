@@ -160,11 +160,7 @@ export default function App() {
       )}
 
       {uploadOpen && (
-        <UploadModal
-          defaultRole={filter === 'SPM' ? 'SPM' : 'PM'}
-          onClose={() => setUploadOpen(false)}
-          onUploaded={handleUploaded}
-        />
+        <UploadModal onClose={() => setUploadOpen(false)} onUploaded={handleUploaded} />
       )}
 
       {rubricOpen && <RubricModal onClose={() => setRubricOpen(false)} />}

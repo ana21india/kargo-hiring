@@ -85,6 +85,27 @@ export default function CandidateDetail({ candidate, onChange }) {
         </div>
       </div>
 
+      <div className="bg-slate-50 rounded-2xl p-3 text-xs text-slate-500">
+        {draft.role_source === 'auto' ? (
+          <>
+            <span className="font-medium text-slate-700">Auto-classified as {cfg?.label}.</span>{' '}
+            {draft.role_rationale}
+          </>
+        ) : (
+          <>
+            <span className="font-medium text-slate-700">Manually set to {cfg?.label}.</span>{' '}
+            {draft.recommended_role && draft.recommended_role !== draft.role ? (
+              <>
+                The CV would have been auto-classified as{' '}
+                {ROLE_CONFIG[draft.recommended_role]?.label}: {draft.role_rationale}
+              </>
+            ) : (
+              draft.role_rationale && <>Classifier agrees: {draft.role_rationale}</>
+            )}
+          </>
+        )}
+      </div>
+
       <div>
         <h3 className="text-sm font-semibold text-slate-600 mb-2">Dimension scores</h3>
         <div className="space-y-2">
