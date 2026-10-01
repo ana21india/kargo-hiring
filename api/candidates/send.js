@@ -1,6 +1,5 @@
 import { getSql, firstRow } from '../_lib/db.js'
 import { sendEmail, textToHtml } from '../_lib/resend.js'
-import { ROLE_CONFIG } from '../../shared/rubric.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -22,9 +21,8 @@ export default async function handler(req, res) {
   const isInvite = candidate.decision === 'invite'
   const subject = isInvite ? candidate.invite_email_subject : candidate.reject_email_subject
   const body = isInvite ? candidate.invite_email_body : candidate.reject_email_body
-  const arjunEmail = process.env.ARJUN_EMAIL
 
-  const results = { candidate_sent: false, arjun_sent: false }
+  const results = { candidate_sent: false }
   const errors = []
 
   try {
@@ -34,31 +32,11 @@ export default async function handler(req, res) {
     errors.push(`Candidate email failed: ${err.message}`)
   }
 
-  if (isInvite && arjunEmail) {
-    try {
-      const cfg = ROLE_CONFIG[candidate.role] || ROLE_CONFIG.PM
-      const arjunSubject = `Selected for interview: ${candidate.name} (${cfg.label}) — ${candidate.total_score}/${candidate.max_score}`
-      const arjunBody = [
-        `${candidate.name} was selected to move forward for the ${cfg.label} role.`,
-        '',
-        candidate.selection_rationale || '',
-        '',
-        `Total score: ${candidate.total_score}/${candidate.max_score}`,
-        `Probe in interview: ${candidate.probe_question || '—'}`,
-      ].join('\n')
-      await sendEmail({ to: arjunEmail, subject: arjunSubject, html: textToHtml(arjunBody) })
-      results.arjun_sent = true
-    } catch (err) {
-      errors.push(`Arjun notification failed: ${err.message}`)
-    }
-  }
-
   const updatedRows = await sql`
     update candidates set
       status = ${results.candidate_sent ? 'sent' : candidate.status},
       sent_at = ${results.candidate_sent ? new Date().toISOString() : candidate.sent_at},
-      sent_to_candidate = ${results.candidate_sent || candidate.sent_to_candidate || false},
-      sent_to_arjun = ${results.arjun_sent || candidate.sent_to_arjun || false}
+      sent_to_candidate = ${results.candidate_sent || candidate.sent_to_candidate || false}
     where id = ${id}
     returning id, name, email, phone, role, cv_filename, extracted, dimension_scores,
               total_score, max_score, probe_question, interview_brief, selection_rationale,
@@ -67,12 +45,7 @@ export default async function handler(req, res) {
   `
   const updated = firstRow(updatedRows)
 
-  // Only a hard failure if nothing at all went out — a partial success
-  // (e.g. Arjun notified but the candidate's own mail bounced because
-  // Resend's test sender can't reach unverified recipients) still counts
-  // as a send, surfaced as a warning rather than an error.
-  const somethingSent = results.candidate_sent || results.arjun_sent
-  if (errors.length && !somethingSent) {
+  if (errors.length && !results.candidate_sent) {
     return res.status(502).json({ error: errors.join(' | '), candidate: updated || candidate })
   }
 
