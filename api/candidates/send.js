@@ -1,5 +1,5 @@
 import { getSql, firstRow } from '../_lib/db.js'
-import { sendEmail, textToHtml } from '../_lib/resend.js'
+import { sendEmail, textToHtml } from '../_lib/mailer.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
